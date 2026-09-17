@@ -16,6 +16,7 @@ const resume = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [resumeUrl, setResumeUrl] = useState('');
   const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [loadError, setLoadError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,30 +25,59 @@ const resume = () => {
   
   useEffect(() => {
     const loadResume = async () => {
-      const resume = await kv.get(`resume:${id}`);
+      try {
+        const resume = await kv.get(`resume:${id}`);
 
-      if(!resume) return;
+        if(!resume) {
+          setLoadError("We couldn't find that resume. It may have been deleted.");
+          return;
+        }
 
-      const data = JSON.parse(resume);
+        const data = JSON.parse(resume);
 
-      const resumeBlob = await fs.read(data.resumePath);
-      if(!resumeBlob) return;
+        const resumeBlob = await fs.read(data.resumePath);
+        if(!resumeBlob) {
+          setLoadError("We couldn't load this resume's file. Try again later.");
+          return;
+        }
 
-      const pdfBlob = new Blob([resumeBlob], { type: 'application/pdf' });
-      const resumeUrl = URL.createObjectURL(pdfBlob);
-      setResumeUrl(resumeUrl);
+        const pdfBlob = new Blob([resumeBlob], { type: 'application/pdf' });
+        const resumeUrl = URL.createObjectURL(pdfBlob);
+        setResumeUrl(resumeUrl);
 
-      const imageBlob = await fs.read(data.imagePath);
-      if(!imageBlob) return;
-      const imageUrl = URL.createObjectURL(imageBlob);
-      setImageUrl(imageUrl);
+        const imageBlob = await fs.read(data.imagePath);
+        if(!imageBlob) {
+          setLoadError("We couldn't load this resume's preview image. Try again later.");
+          return;
+        }
+        const imageUrl = URL.createObjectURL(imageBlob);
+        setImageUrl(imageUrl);
 
-      setFeedback(data.feedback);
-      console.log({resumeUrl, imageUrl, feedback: data.feedback });
+        setFeedback(data.feedback);
+      } catch (error) {
+        console.error("Failed to load resume:", error);
+        setLoadError("We couldn't load this resume. Please try again later.");
+      }
     }
 
-    loadResume();
+    if (id) loadResume();
   }, [id]);
+
+  if (loadError) {
+    return (
+      <main className="bg-[url('/images/bg-main.svg')] bg-cover min-h-screen flex items-center justify-center">
+        <div className="gradient-border w-fit">
+          <div className="bg-white rounded-2xl p-10 flex flex-col items-center gap-4 text-center max-w-md">
+            <h2 className="text-2xl font-bold text-black">Resume not found</h2>
+            <p className="text-gray-500">{loadError}</p>
+            <Link to="/" className="primary-button w-fit px-6">
+              Back to Homepage
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="pt-0">
