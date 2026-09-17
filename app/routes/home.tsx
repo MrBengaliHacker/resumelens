@@ -66,7 +66,13 @@ export default function Home() {
         {!loadingResumes && resumes.length > 0 && (
           <div className="resumes-section">
             {resumes.map((resume) => (
-              <ResumeCard key={resume.id} resume={resume} />
+              <ResumeCard
+                key={resume.id}
+                resume={resume}
+                onDelete={(id) =>
+                  setResumes((prev) => prev.filter((r) => r.id !== id))
+                }
+              />
             ))}
           </div>
         )}
