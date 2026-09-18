@@ -23,6 +23,12 @@
 </p>
 
 <p align="center">
+  <a href="https://resumelens-tau.vercel.app">
+    <strong>🚀 Live Demo</strong>
+  </a>
+</p>
+
+<p align="center">
   <img
     src="public/screenshots/homepage.png"
     alt="ResumeLens homepage"
