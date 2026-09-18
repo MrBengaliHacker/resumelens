@@ -16,12 +16,38 @@ const resume = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [resumeUrl, setResumeUrl] = useState('');
   const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [resumePath, setResumePath] = useState('');
+  const [imagePath, setImagePath] = useState('');
   const [loadError, setLoadError] = useState('');
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
 
+  const handleDelete = async () => {
+    if (!id) return;
+    setDeleting(true);
+    try {
+      await kv.delete(`resume:${id}`);
+
+      try {
+        if (imagePath) await fs.delete(imagePath);
+        if (resumePath) await fs.delete(resumePath);
+      } catch (cleanupError) {
+        console.error("Failed to clean up resume files:", cleanupError);
+      }
+
+      navigate('/');
+    } catch (error) {
+      console.error("Failed to delete resume:", error);
+      setDeleting(false);
+    }
+  }
+
   useEffect(() => {
-    if(!isLoading && !auth.isAuthenticated) navigate(`/auth?next=/resume/${id}`);
-  }, [isLoading])
+    if (!isLoading && !auth.isAuthenticated) {
+      navigate(`/auth?next=/resume/${id}`);
+    }
+  }, [isLoading, auth.isAuthenticated, navigate, id]);
   
   useEffect(() => {
     const loadResume = async () => {
@@ -34,6 +60,8 @@ const resume = () => {
         }
 
         const data = JSON.parse(resume);
+        setResumePath(data.resumePath);
+        setImagePath(data.imagePath);
 
         const resumeBlob = await fs.read(data.resumePath);
         if(!resumeBlob) {
@@ -86,6 +114,38 @@ const resume = () => {
           <img src="/icons/back.svg" alt="logo" className="w-2.5 h-2.5" />
           <span className="text-gray-800 text-sm font-semibold">Back to Homepage</span>
         </Link>
+
+        {feedback && (
+          confirmingDelete ? (
+            <div className="flex flex-row items-center gap-3">
+              <span className="text-sm text-red-600 font-medium">Delete this resume?</span>
+              <button
+                className="text-sm font-semibold text-red-600 hover:text-red-700 cursor-pointer disabled:opacity-50"
+                onClick={handleDelete}
+                disabled={deleting}
+                type="button"
+              >
+                {deleting ? "Deleting..." : "Yes, delete"}
+              </button>
+              <button
+                className="text-sm font-semibold text-gray-500 hover:text-gray-700 cursor-pointer disabled:opacity-50"
+                onClick={() => setConfirmingDelete(false)}
+                disabled={deleting}
+                type="button"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-50 cursor-pointer"
+              onClick={() => setConfirmingDelete(true)}
+              type="button"
+            >
+              Delete resume
+            </button>
+          )
+        )}
       </nav>
       <div className='flex flex-row w-full max-lg:flex-col-reverse'>
         <section className='feedback-section bg-[url("/images/bg-small.svg")] bg-cover h-screen sticky top-0 items-center justify-center'>

@@ -13,6 +13,7 @@ const ResumeCard = ({ resume : { id, companyName, jobTitle, feedback, imagePath,
     const [resumeUrl, setResumeUrl] = useState('');
     const [confirming, setConfirming] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState('');
 
     useEffect(() => {
       const loadResume = async () => {
@@ -29,18 +30,25 @@ const ResumeCard = ({ resume : { id, companyName, jobTitle, feedback, imagePath,
       e.preventDefault();
       e.stopPropagation();
       setDeleting(true);
-
+      setDeleteError('');
       try {
-        await fs.delete(imagePath);
-        await fs.delete(resumePath);
+        // Delete the KV record first — this is the source of truth for the
+        // home list, so it must succeed for the resume to actually disappear.
         await kv.delete(`resume:${id}`);
 
+        // Best-effort file cleanup: don't let a failure here undo the
+        // deletion above, but do report it.
+        try {
+          await fs.delete(imagePath);
+          await fs.delete(resumePath);
+        } catch (cleanupError) {
+          console.error("Failed to clean up resume files:", cleanupError);
+        }
+
         onDelete?.(id);
-        setConfirming(false);
       } catch (error) {
         console.error("Failed to delete resume:", error);
-        window.alert("Failed to delete resume. Please try again.");
-      } finally {
+        setDeleteError("Couldn't delete this resume. Try again.");
         setDeleting(false);
       }
     }
@@ -74,10 +82,13 @@ const ResumeCard = ({ resume : { id, companyName, jobTitle, feedback, imagePath,
       {onDelete && (
         confirming ? (
           <div
-            className="absolute top-2 right-2 flex flex-col gap-2 bg-white rounded-xl shadow-md border border-gray-100 p-3 z-10 w-40"
+            className="absolute top-2 right-2 flex flex-col gap-2 bg-white rounded-xl shadow-md border border-gray-100 p-3 z-10 w-44"
             onClick={(e) => e.stopPropagation()}
           >
             <p className="text-xs text-gray-600">Delete this resume?</p>
+            {deleteError && (
+              <p className="text-xs text-red-600">{deleteError}</p>
+            )}
             <div className="flex flex-row gap-2">
               <button
                 className="text-xs font-semibold text-red-600 hover:text-red-700 cursor-pointer disabled:opacity-50"
@@ -88,7 +99,7 @@ const ResumeCard = ({ resume : { id, companyName, jobTitle, feedback, imagePath,
               </button>
               <button
                 className="text-xs font-semibold text-gray-500 hover:text-gray-700 cursor-pointer disabled:opacity-50"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirming(false); }}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirming(false); setDeleteError(''); }}
                 disabled={deleting}
               >
                 Cancel
