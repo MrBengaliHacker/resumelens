@@ -18,9 +18,18 @@
   --color-badge-yellow-text: #73321b;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body {
   @apply bg-white;
+}
+
+::selection {
+  background-color: #8e98ff;
+  color: white;
 }
 
 main {
@@ -38,11 +47,11 @@ label {
   @apply text-dark-200;
 }
 input {
-  @apply w-full p-4 inset-shadow rounded-2xl focus:outline-none bg-white;
+  @apply w-full p-4 inset-shadow rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8e98ff] transition-shadow duration-150 bg-white;
 }
 
 textarea {
-  @apply w-full p-4 inset-shadow rounded-2xl focus:outline-none bg-white;
+  @apply w-full p-4 inset-shadow rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8e98ff] transition-shadow duration-150 bg-white;
 }
 
 form {
@@ -54,25 +63,25 @@ form {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-[#AB8C95] via-[#000000] to-[#8E97C5];
   }
   .gradient-border {
-    @apply bg-gradient-to-b from-light-blue-100 to-light-blue-200 p-4 rounded-2xl;
+    @apply bg-gradient-to-b from-light-blue-100 to-light-blue-200 p-4 rounded-2xl shadow-md;
   }
   .primary-button {
-    @apply primary-gradient text-white rounded-full px-4 py-2 cursor-pointer w-full;
+    @apply primary-gradient hover:primary-gradient-hover text-white rounded-full px-4 py-2 cursor-pointer w-full transition-all duration-200 hover:shadow-md active:scale-[0.98];
   }
   .resume-nav {
-    @apply flex flex-row justify-between items-center p-4 border-b border-gray-200;
+    @apply flex flex-row justify-between items-center px-6 py-4 border-b border-gray-100 shadow-sm bg-white;
   }
   .resume-summary {
     @apply flex flex-row items-center justify-center p-4 gap-4;
     .category {
-      @apply flex flex-row gap-2 items-center bg-gray-50 rounded-2xl p-4 w-full justify-between;
+      @apply flex flex-row gap-2 items-center bg-gray-50 rounded-2xl p-4 w-full justify-between transition-colors duration-150 hover:bg-gray-100;
     }
   }
   .back-button {
-    @apply flex flex-row items-center gap-2 border border-gray-200 rounded-lg p-2 shadow-sm;
+    @apply flex flex-row items-center gap-2 border border-gray-200 rounded-lg p-2 shadow-sm transition-colors duration-150 hover:bg-gray-50;
   }
   .auth-button {
-    @apply primary-gradient rounded-full py-4 px-8 cursor-pointer w-full max-md:w-full text-3xl font-semibold text-white;
+    @apply primary-gradient hover:primary-gradient-hover rounded-full py-4 px-8 cursor-pointer w-full max-md:w-full text-3xl font-semibold text-white transition-all duration-200 hover:shadow-md active:scale-[0.98];
   }
   .main-section {
     @apply flex flex-col items-center gap-8 pt-12 max-sm:mx-2 mx-15 pb-5;
@@ -85,7 +94,7 @@ form {
   }
 
   .resume-card {
-    @apply flex flex-col gap-8 h-[560px] w-[350px] lg:w-[430px] xl:w-[490px] bg-white rounded-2xl p-4;
+    @apply flex flex-col gap-8 h-[560px] w-[350px] lg:w-[430px] xl:w-[490px] bg-white rounded-2xl p-4 transition-all duration-200 hover:shadow-xl hover:-translate-y-1;
   }
 
   .resume-card-header {
@@ -97,11 +106,11 @@ form {
   }
 
   .navbar {
-    @apply flex flex-row justify-between items-center bg-white rounded-full p-4 w-full px-10 max-w-[1200px] mx-auto;
+    @apply flex flex-row justify-between items-center bg-white rounded-full p-4 w-full px-10 max-w-[1200px] mx-auto shadow-sm;
   }
 
   .score-badge {
-    @apply flex flex-row items-center justify-center py-1 px-2 gap-4 rounded-[96px];
+    @apply flex flex-row items-center justify-center py-1 px-3 gap-4 rounded-[96px] font-medium;
   }
 
   .form-div {
@@ -109,7 +118,7 @@ form {
   }
 
   .uplader-drag-area {
-    @apply relative p-8 text-center transition-all duration-700 cursor-pointer bg-white rounded-2xl min-h-[208px];
+    @apply relative p-8 text-center transition-all duration-300 cursor-pointer bg-white rounded-2xl min-h-[208px];
   }
   .uploader-selected-file {
     @apply flex items-center justify-between p-3 bg-gray-50 rounded-2xl;

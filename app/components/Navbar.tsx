@@ -26,7 +26,7 @@ const Navbar = () => {
               <span className="flex items-center justify-center w-7 h-7 rounded-full primary-gradient text-white text-xs font-bold uppercase shrink-0">
                 {auth.user.username?.charAt(0)}
               </span>
-              <span className="text-sm font-semibold text-gray-700">
+              <span className="text-sm font-semibold text-gray-700 hidden sm:inline">
                 {auth.user.username}
               </span>
               <svg
